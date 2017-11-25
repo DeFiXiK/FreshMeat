@@ -90,12 +90,11 @@ func (ac *AuthController) CheckSessionForAuthorized(next echo.HandlerFunc) echo.
 		if !ok {
 			return c.Redirect(http.StatusFound, "/auth/login")
 		}
-		if id == "zero" {
-			return c.Redirect(http.StatusFound, "/auth/login")
-		}
-		_, err = models.GetUserByID(ac.DB, id.(uint))
-		if err != nil {
-			return c.Redirect(http.StatusFound, "/auth/login")
+		if id, ok := id.(uint); ok {
+			_, err = models.GetUserByID(ac.DB, id)
+			if err != nil {
+				return c.Redirect(http.StatusFound, "/auth/login")
+			}
 		}
 		return next(c)
 	}
@@ -111,12 +110,11 @@ func (ac *AuthController) CheckSessionForUnauthorized(next echo.HandlerFunc) ech
 		if !ok {
 			return next(c)
 		}
-		if id == "zero" {
-			return next(c)
-		}
-		_, err = models.GetUserByID(ac.DB, id.(uint))
-		if err != nil {
-			return next(c)
+		if id, ok := id.(uint); ok {
+			_, err = models.GetUserByID(ac.DB, id)
+			if err != nil {
+				return next(c)
+			}
 		}
 		return c.Redirect(http.StatusFound, "/")
 	}
