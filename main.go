@@ -52,16 +52,20 @@ func main() {
 	}
 
 	unauthorizedGroup := e.Group("/auth")
-	authorizedGroup := e.Group("")
 
-	authorizedGroup.Use(authCtl.CheckSessionForAuthorized)
 	unauthorizedGroup.Use(authCtl.CheckSessionForUnauthorized)
-
-	authorizedGroup.GET("/", func(c echo.Context) error {
-		return c.String(http.StatusOK, "Hello world")
-	})
 
 	unauthorizedGroup.GET("/login", authCtl.GetLoginFrom)
 	unauthorizedGroup.POST("/login", authCtl.PostLoginForm)
+	unauthorizedGroup.GET("/registration", authCtl.GetRegistrationForm)
+	unauthorizedGroup.POST("/registration", authCtl.PostRegistrationForm)
+
+	authorizedGroup := e.Group("")
+	authorizedGroup.Use(authCtl.CheckSessionForAuthorized)
+	authorizedGroup.GET("/", func(c echo.Context) error {
+		return c.Render(http.StatusOK, "index.html", nil)
+	})
+	authorizedGroup.POST("/logout", authCtl.Logout)
+
 	e.Logger.Fatal(e.Start(":5000"))
 }

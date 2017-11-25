@@ -1,0 +1,14 @@
+{{ template "header" . }}
+<form action="/auth/registration" method="post">
+    <input type="text" name="username" id="">
+    <input type="fpassword" name="password" id="">
+    <input type="spassword" name="password" id="">
+    <input type="submit" value="Отправить">
+</form>
+<div class="error">
+    {{ .error }}
+</div>
+<div class="message">
+    {{ .message }}
+</div>
+{{ template "footer" . }}
