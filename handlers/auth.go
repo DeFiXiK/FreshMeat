@@ -75,12 +75,7 @@ func (ac *AuthController) PostLoginForm(c echo.Context) error {
 
 func (ac *AuthController) Logout(c echo.Context) error {
 	ses, _ := session.Get("session", c)
-	ses.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   86400 * 7,
-		HttpOnly: true,
-	}
-	ses.Values["user_id"] = "zero"
+	delete(ses.Values, "user_id")
 	ses.Save(c.Request(), c.Response())
 	return c.Redirect(http.StatusFound, "/auth/login")
 }
