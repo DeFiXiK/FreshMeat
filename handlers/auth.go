@@ -23,15 +23,18 @@ func (ac *AuthController) PostRegistrationForm(c echo.Context) error {
 	username := c.FormValue("username")
 	fpassword := c.FormValue("fpassword")
 	spassword := c.FormValue("spassword")
+
 	if fpassword != spassword {
 		return c.Render(http.StatusBadRequest, "registration.html", map[string]interface{}{
 			"error": "Введеные пароли не совпадают",
 		})
 	}
+
 	user := models.User{}
 	user.Username = username
 	user.PasswordHash = models.HashPwd(fpassword)
 	user.Create(ac.DB)
+
 	return c.Render(http.StatusOK, "registration.html", map[string]interface{}{
 		"message": "Аккаунт успешно создан",
 	})

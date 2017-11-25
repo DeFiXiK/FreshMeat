@@ -61,7 +61,9 @@ func main() {
 	unauthorizedGroup.POST("/registration", authCtl.PostRegistrationForm)
 
 	authorizedGroup := e.Group("")
+
 	authorizedGroup.Use(authCtl.CheckSessionForAuthorized)
+
 	authorizedGroup.GET("/", func(c echo.Context) error {
 		return c.Render(http.StatusOK, "index.html", nil)
 	})
