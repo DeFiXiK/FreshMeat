@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"log"
 	"net/http"
 
 	"github.com/gorilla/sessions"
@@ -17,7 +16,7 @@ type AuthController struct {
 }
 
 func (ac *AuthController) GetRegistrationForm(c echo.Context) error {
-	return c.Render(http.StatusOK, "register.html", nil)
+	return c.Render(http.StatusOK, "registration.html", nil)
 }
 
 func (ac *AuthController) PostRegistrationForm(c echo.Context) error {
@@ -25,7 +24,7 @@ func (ac *AuthController) PostRegistrationForm(c echo.Context) error {
 	fpassword := c.FormValue("fpassword")
 	spassword := c.FormValue("spassword")
 	if fpassword != spassword {
-		return c.Render(http.StatusBadRequest, "register.html", map[string]interface{}{
+		return c.Render(http.StatusBadRequest, "registration.html", map[string]interface{}{
 			"error": "Введеные пароли не совпадают",
 		})
 	}
@@ -77,6 +76,9 @@ func (ac *AuthController) CheckSessionForAuthorized(next echo.HandlerFunc) echo.
 		if !ok {
 			return c.Redirect(http.StatusFound, "/auth/login")
 		}
+		if id == "zero" {
+			return c.Redirect(http.StatusFound, "/auth/login")
+		}
 		_, err = models.GetUserByID(ac.DB, id.(uint))
 		if err != nil {
 			return c.Redirect(http.StatusFound, "/auth/login")
@@ -93,6 +95,9 @@ func (ac *AuthController) CheckSessionForUnauthorized(next echo.HandlerFunc) ech
 		}
 		id, ok := ses.Values["user_id"]
 		if !ok {
+			return next(c)
+		}
+		if id == "zero" {
 			return next(c)
 		}
 		_, err = models.GetUserByID(ac.DB, id.(uint))
