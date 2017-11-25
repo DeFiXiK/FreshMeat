@@ -48,3 +48,11 @@ func (u *User) CheckPassword(password string) bool {
 	}
 	return true
 }
+
+func (u *User) Save(db *gorm.DB) error {
+	err := db.Save(u).Error
+	if err != nil {
+		return err
+	}
+	return nil
+}

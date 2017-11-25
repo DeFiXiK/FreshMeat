@@ -69,5 +69,11 @@ func main() {
 	})
 	authorizedGroup.POST("/logout", authCtl.Logout)
 
+	profCtl := handlers.ProfileController{
+		DB: db,
+	}
+	authorizedGroup.GET("/profile", profCtl.GetProfilePage)
+	authorizedGroup.POST("/profile", profCtl.UpdateProfile)
+
 	e.Logger.Fatal(e.Start(":5000"))
 }

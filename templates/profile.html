@@ -1,0 +1,16 @@
+{{ template "header" . }}
+<form action="/profile" method="post">
+    <label for="password"></label>
+    <label for="fpassword">Введите новый пароль</label>
+    <input type="password" name="fpassword" id="">
+    <label for="spassword">Повторите пароль</label>
+    <input type="password" name="spassword" id="">
+    <input type="submit" value="Отправить">
+</form>
+<div class="error">
+    {{ .error }}
+</div>
+<div class="message">
+    {{ .message }}
+</div>
+{{ template "footer" . }}
