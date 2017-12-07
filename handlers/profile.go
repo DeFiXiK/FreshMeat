@@ -14,18 +14,29 @@ type ProfileController struct {
 	DB *gorm.DB
 }
 
-func (pc *ProfileController) GetUserFromContext(c echo.Context) (*models.User, error) {
+func GetUserFromContext(db *gorm.DB, c echo.Context) (*models.User, error) {
+	userFc := c.Get("user")
+	if userFc != nil {
+		return userFc.(*models.User), nil
+	}
+
 	ses, _ := session.Get("session", c)
-	id := ses.Values["user_id"].(uint)
-	user, err := models.GetUserByID(pc.DB, id)
+	id, ok := ses.Values["user_id"].(uint)
+	if !ok {
+		return nil, nil
+	}
+
+	user, err := models.GetUserByID(db, id)
 	if err != nil {
 		return nil, err
 	}
+
+	c.Set("user", user)
 	return user, nil
 }
 
 func (pc *ProfileController) GetProfilePage(c echo.Context) error {
-	user, err := pc.GetUserFromContext(c)
+	user, err := GetUserFromContext(pc.DB, c)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -35,7 +46,7 @@ func (pc *ProfileController) GetProfilePage(c echo.Context) error {
 }
 
 func (pc *ProfileController) UpdateProfile(c echo.Context) error {
-	user, err := pc.GetUserFromContext(c)
+	user, err := GetUserFromContext(pc.DB, c)
 	if err != nil {
 		log.Fatal(err)
 	}
