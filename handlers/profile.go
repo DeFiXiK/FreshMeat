@@ -51,6 +51,12 @@ func (pc *ProfileController) UpdateProfile(c echo.Context) error {
 		log.Fatal(err)
 	}
 	fpassword := c.FormValue("fpassword")
+	if fpassword == "" {
+		return c.Render(http.StatusBadRequest, "profile.html", map[string]interface{}{
+			"error": "Пароль не может быть пустым",
+		})
+	}
+
 	spassword := c.FormValue("spassword")
 	if fpassword != spassword {
 		return c.Render(http.StatusBadRequest, "profile.html", map[string]interface{}{
