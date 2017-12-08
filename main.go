@@ -20,31 +20,47 @@ import (
 // TemplateRenderer is a custom html/template renderer for Echo framework
 type TemplateRenderer struct {
 	templates *template.Template
+	db        *gorm.DB
 }
 
 // Render renders a template document
 func (t *TemplateRenderer) Render(w io.Writer, name string, data interface{}, c echo.Context) error {
+	var viewContext map[string]interface{}
 
-	// Add global methods if data is a map
-	if viewContext, isMap := data.(map[string]interface{}); isMap {
-		viewContext["reverse"] = c.Echo().Reverse
+	if vs, isMap := data.(map[string]interface{}); isMap {
+		viewContext = vs
+	} else {
+		viewContext = map[string]interface{}{}
 	}
 
-	return t.templates.ExecuteTemplate(w, name, data)
+	viewContext["reverse"] = c.Echo().Reverse
+
+	user, err := handlers.GetUserFromContext(t.db, c)
+	if err != nil {
+		return err
+	}
+	if user != nil {
+		viewContext["user"] = user
+	}
+
+	return t.templates.ExecuteTemplate(w, name, viewContext)
 }
 
 func main() {
-	e := echo.New()
-	renderer := &TemplateRenderer{
-		templates: template.Must(template.ParseGlob("./templates/*.html")),
-	}
-	e.Renderer = renderer
-
 	db, err := gorm.Open("sqlite3", "./db.sqlite3")
 	if err != nil {
 		log.Fatal(err)
 	}
 	db.AutoMigrate(&models.User{}, &models.Storage{}, &models.Record{})
+
+	e := echo.New()
+	renderer := &TemplateRenderer{
+		templates: template.Must(template.ParseGlob("./templates/*.html")),
+		db:        db,
+	}
+	e.Renderer = renderer
+
+	e.Static("/static", "./static")
 
 	e.Use(session.Middleware(sessions.NewCookieStore([]byte("secret"))))
 	authCtl := handlers.AuthController{
