@@ -51,7 +51,7 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
-	db.AutoMigrate(&models.User{}, &models.Storage{}, &models.Record{})
+	db.AutoMigrate(&models.User{})
 
 	e := echo.New()
 	renderer := &TemplateRenderer{
